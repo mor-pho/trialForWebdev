@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock, Timer, Stopwatch, Alarm</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: #fff;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        h2 {
+            font-size: 1.8em;
+        }
+        nav {
+            margin-bottom: 30px;
+        }
+        nav button {
+            background-color: #fff;
+            color: #2575fc;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        nav button:hover {
+            background-color: #2575fc;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .section {
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        button {
+            background-color: #fff;
+            color: #2575fc;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #2575fc;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        #clock {
+            font-size: 2.5em;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Clock, Timer, Stopwatch, Alarm</h1>
+
+    <nav>
+        <button onclick="showPage('clockSection')">Clock</button>
+        <button onclick="showPage('timerSection')">Timer</button>
+        <button onclick="showPage('stopwatchSection')">Stopwatch</button>
+        <button onclick="showPage('alarmSection')">Alarm</button>
+    </nav>
+
+    <div id="clockSection" class="section">
+        <h2>Current Time</h2>
+        <div id="clock">--:--:--</div>
+    </div>
+
+    <div id="timerSection" class="section hidden">
+        <h2>Timer</h2>
+        <input type="number" id="timerMinutes" placeholder="Minutes" min="0">
+        <input type="number" id="timerSeconds" placeholder="Seconds" min="0">
+        <button onclick="startTimer()">Start Timer</button>
+        <button onclick="stopTimer()">Stop Timer</button>
+        <div id="timerDisplay">00:00</div>
+    </div>
+
+    <div id="stopwatchSection" class="section hidden">
+        <h2>Stopwatch</h2>
+        <button onclick="startStopwatch()">Start</button>
+        <button onclick="stopStopwatch()">Stop</button>
+        <button onclick="resetStopwatch()">Reset</button>
+        <div id="stopwatchDisplay">00:00:00</div>
+    </div>
+
+    <div id="alarmSection" class="section hidden">
+        <h2>Alarm</h2>
+        <input type="time" id="alarmTime">
+        <button onclick="setAlarm()">Set Alarm</button>
+        <div id="alarmStatus"></div>
+    </div>
+
+    <script>
+        function showPage(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('clock').textContent = timeString;
+        }
+        setInterval(updateClock, 1000);
+
+        // Timer
+        let timerInterval;
+        function startTimer() {
+            const minutes = parseInt(document.getElementById('timerMinutes').value) || 0;
+            const seconds = parseInt(document.getElementById('timerSeconds').value) || 0;
+            let totalSeconds = minutes * 60 + seconds;
+
+            timerInterval = setInterval(() => {
+                if (totalSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert('Timer finished!');
+                } else {
+                    totalSeconds--;
+                    const min = Math.floor(totalSeconds / 60);
+                    const sec = totalSeconds % 60;
+                    document.getElementById('timerDisplay').textContent = 
+                        `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        // Stopwatch
+        let stopwatchInterval;
+        let stopwatchTime = 0;
+        function startStopwatch() {
+            stopwatchInterval = setInterval(() => {
+                stopwatchTime++;
+                const hours = Math.floor(stopwatchTime / 3600);
+                const minutes = Math.floor((stopwatchTime % 3600) / 60);
+                const seconds = stopwatchTime % 60;
+                document.getElementById('stopwatchDisplay').textContent = 
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }, 1000);
+        }
+        function stopStopwatch() {
+            clearInterval(stopwatchInterval);
+        }
+        function resetStopwatch() {
+            stopStopwatch();
+            stopwatchTime = 0;
+            document.getElementById('stopwatchDisplay').textContent = '00:00:00';
+        }
+
+        // Alarm
+        let alarmTimeout;
+        function setAlarm() {
+            const alarmInput = document.getElementById('alarmTime').value;
+            if (!alarmInput) {
+                alert('Please set a valid time for the alarm.');
+                return;
+            }
+            const now = new Date();
+            const [hours, minutes] = alarmInput.split(':').map(Number);
+            const alarmTime = new Date();
+            alarmTime.setHours(hours, minutes, 0, 0);
+
+            const timeDifference = alarmTime - now;
+            if (timeDifference < 0) {
+                alert('The time you set is in the past.');
+                return;
+            }
+
+            document.getElementById('alarmStatus').textContent = `Alarm set for ${alarmInput}`;
+            alarmTimeout = setTimeout(() => {
+                alert('Alarm ringing!');
+                document.getElementById('alarmStatus').textContent = '';
+            }, timeDifference);
+        }
+    </script>
+</body>
+</html>
